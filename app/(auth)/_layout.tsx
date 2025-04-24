@@ -1,27 +1,23 @@
-import { Tabs } from "expo-router";
+import { Stack } from "expo-router";
 import { useAuth } from "../../src/Components/contexts/AuthContext";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 
-export default function TabsLayout() {
+export default function AuthLayout() {
   const { user } = useAuth();
   const router = useRouter();
 
   // Handle navigation in useEffect
   useEffect(() => {
-    if (!user) {
-      router.replace('/(auth)/login');
+    if (user) {
+      router.replace('/(tabs)');
     }
   }, [user]);
 
   return (
-    <Tabs screenOptions={{ headerShown: true }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Todo List",
-        }}
-      />
-    </Tabs>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+      <Stack.Screen name="register" />
+    </Stack>
   );
 } 
