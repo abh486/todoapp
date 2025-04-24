@@ -105,7 +105,7 @@ export const LoginScreen = () => {
               <ActivityIndicator color="#fff" />
             ) : (
               <>
-                <Text style={styles.buttonText}>Sign In</Text>
+                <Text style={styles.buttonText}>Login</Text>
                 <Ionicons name="arrow-forward" size={20} color="#fff" />
               </>
             )}
