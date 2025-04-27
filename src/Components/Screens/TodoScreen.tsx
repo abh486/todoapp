@@ -25,13 +25,18 @@ export const TodoScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
-  const [newTodo, setNewTodo] = useState<Partial<Todo>>({
+  const [newTodo, setNewTodo] = useState<{
+    title: string;
+    description: string;
+    createdAt: Date;
+    deadline: Date;
+    priority: 'Low' | 'Medium' | 'High';
+  }>({
     title: '',
     description: '',
     createdAt: new Date(),
     deadline: new Date(),
     priority: 'Medium',
-    userEmail: user?.email || '',
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [datePickerMode, setDatePickerMode] = useState<'createdAt' | 'deadline'>('createdAt');
@@ -95,7 +100,6 @@ export const TodoScreen = () => {
       createdAt: new Date(),
       deadline: new Date(),
       priority: 'Medium',
-      userEmail: user?.email || '',
     });
     setIsEditing(false);
     setEditingTodoId(null);
@@ -113,7 +117,6 @@ export const TodoScreen = () => {
       createdAt: todo.createdAt,
       deadline: todo.deadline,
       priority: todo.priority,
-      userEmail: user?.email || '',
     });
     setEditingTodoId(todo.id);
     setIsEditing(true);
@@ -151,34 +154,43 @@ export const TodoScreen = () => {
   };
 
   const updateTodo = async () => {
-    if (!user?.email) {
+    const userEmail = user?.email;
+    if (!userEmail) {
       Alert.alert('Error', 'Please sign in to update todos.');
       return;
     }
 
-    if (newTodo.title?.trim() && editingTodoId) {
-      try {
-        const updatedTodos = todos.map((todo) =>
-          todo.id === editingTodoId
-            ? {
-                ...todo,
-                title: newTodo.title.trim(),
-                description: newTodo.description?.trim() || '',
-                createdAt: newTodo.createdAt || todo.createdAt,
-                deadline: newTodo.deadline || todo.deadline,
-                priority: newTodo.priority || todo.priority,
-                userEmail: user.email,
-              }
-            : todo
-        );
-        setTodos(updatedTodos);
-        await saveTodos(updatedTodos);
-        resetForm();
-        setModalVisible(false);
-      } catch (error) {
-        console.error('Error updating todo:', error);
-        Alert.alert('Error', 'Failed to update todo. Please try again.');
-      }
+    if (!editingTodoId) {
+      Alert.alert('Error', 'No todo selected for editing.');
+      return;
+    }
+
+    if (!newTodo.title.trim()) {
+      Alert.alert('Error', 'Please enter a title for the todo.');
+      return;
+    }
+
+    try {
+      const updatedTodos = todos.map((todo) =>
+        todo.id === editingTodoId
+          ? {
+              ...todo,
+              title: newTodo.title.trim(),
+              description: newTodo.description.trim(),
+              createdAt: newTodo.createdAt,
+              deadline: newTodo.deadline,
+              priority: newTodo.priority,
+              userEmail,
+            }
+          : todo
+      );
+      setTodos(updatedTodos);
+      await saveTodos(updatedTodos);
+      resetForm();
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Error updating todo:', error);
+      Alert.alert('Error', 'Failed to update todo. Please try again.');
     }
   };
 
